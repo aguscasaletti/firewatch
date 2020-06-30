@@ -1,0 +1,50 @@
+name: Deploy app to AWS
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "app/**"
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - name: Yarn Install
+        working-directory: ./app
+        run: yarn install
+      - name: NPM Build
+        working-directory: ./app
+        run: |
+          yarn build
+        env:
+          CI: false
+      - name: Archive Production Artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: app_build
+          path: app/build
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@master
+      - name: Download Artifact
+        uses: actions/download-artifact@master
+        with:
+          name: app_build
+          path: app/build
+      - name: Deploy to S3
+        uses: jakejarvis/s3-sync-action@master
+        with:
+          args: --acl public-read --delete
+        env:
+          AWS_S3_BUCKET: ${{ secrets.AWS_STAGING_BUCKET_NAME }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          SOURCE_DIR: "app/build"
