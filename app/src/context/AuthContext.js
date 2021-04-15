@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unused-state */
 
 import React, { useContext } from 'react'
-import PropTypes, { node, string } from 'prop-types'
+import PropTypes, { node } from 'prop-types'
 
 import { Redirect } from 'react-router-dom'
 import CircularProgress from '@material-ui/core/CircularProgress'

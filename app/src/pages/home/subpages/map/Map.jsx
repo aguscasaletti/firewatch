@@ -1,7 +1,6 @@
 /* global google  */
 import React, { memo, useEffect, useState } from 'react'
 // import GoogleMapReact from 'google-map-react'
-import { makeStyles } from '@material-ui/core/styles'
 import { useSnackbar } from 'context/SnackbarContext'
 
 import station from 'images/station.png'
@@ -95,7 +94,7 @@ const Map = () => {
       travelMode: 'WALKING',
     }
     directionsService.route(request, function (result, status) {
-      if (status == 'OK') {
+      if (status === 'OK') {
         directionsRenderer.setDirections(result)
         stationMarkers[1].setLabel('Cuartel más cercano: 2,5 km')
         cameraMarkers[0].setLabel('Incendio activo: Cámara Cerro Catedral')
@@ -161,7 +160,7 @@ const Map = () => {
         }, 5000)
       }
     })
-  }, [])
+  }, [showErrorMsg])
 
   return (
     <>

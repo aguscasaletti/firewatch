@@ -1,15 +1,12 @@
-import React, { useEffect, useState, memo } from 'react'
+import React, { memo } from 'react'
 
-import Grid from '@material-ui/core/Grid'
-import CircularProgress from '@material-ui/core/CircularProgress'
 import CssBaseline from '@material-ui/core/CssBaseline'
 import Box from '@material-ui/core/Box'
 import { makeStyles } from '@material-ui/core/styles'
 
 import TopBar from 'components/TopBar'
 import SideDrawer from 'components/SideDrawer'
-import { useAuth, makePrivate } from 'context/AuthContext'
-import { useSnackbar } from 'context/SnackbarContext'
+import { makePrivate } from 'context/AuthContext'
 import Map from './subpages/map/Map'
 
 const useStyles = makeStyles((theme) => ({
@@ -35,10 +32,6 @@ const useStyles = makeStyles((theme) => ({
 
 const Home = () => {
   const classes = useStyles()
-  const { finishedAuthCheck, user } = useAuth()
-  const { showErrorMsg } = useSnackbar()
-  const [userData, setUserData] = useState(null)
-
   return (
     <div>
       <CssBaseline />

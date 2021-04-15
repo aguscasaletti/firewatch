@@ -1,6 +1,5 @@
 /* eslint-disable react/display-name */
 import React, { useState, memo } from 'react'
-import { useHistory } from 'react-router-dom'
 import { object, func, bool, oneOf } from 'prop-types'
 import { Redirect } from 'react-router-dom'
 import Paper from '@material-ui/core/Paper'
@@ -78,8 +77,6 @@ const AuthPage = () => {
     password: '',
   })
   const [loading, setLoading] = useState(false)
-  const history = useHistory()
-
   const onInputChange = (field) => (evt) =>
     setForm({
       ...form,
