@@ -67,10 +67,12 @@ const FireModal = ({ open, setOpen, onConfirm }) => {
 
         {showVideo ? (
           <>
-            <video className={classes.video} loop autoPlay muted>
-              <source src={video} type="video/mp4" />
+            <iframe title="fire" src="http://raspberrypi.local:8080" height={200} width={300} />
+
+            {/* <video className={classes.video} loop autoPlay muted>
+              <source src="http://raspberrypi.local:8080" type="video/mp4" />
               Tu navegador no soporta videos
-            </video>
+            </video> */}
             <div className={classes.videoActions}>
               <Button
                 color="secondary"
