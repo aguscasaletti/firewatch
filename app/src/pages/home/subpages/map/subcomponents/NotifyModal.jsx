@@ -1,4 +1,4 @@
-import React, { useState, memo } from 'react'
+import React, { memo } from 'react'
 
 import Modal from '@material-ui/core/Modal'
 import Paper from '@material-ui/core/Paper'
