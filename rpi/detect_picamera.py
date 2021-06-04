@@ -34,8 +34,8 @@ import picamera
 from PIL import Image
 from tflite_runtime.interpreter import Interpreter
 
-CAMERA_WIDTH = 300
-CAMERA_HEIGHT = 200
+CAMERA_WIDTH = 512
+CAMERA_HEIGHT = 512
 
 
 def load_labels(path):
@@ -54,9 +54,7 @@ def load_labels(path):
 
 def set_input_tensor(interpreter, image):
     """Sets the input tensor."""
-    tensor_index = interpreter.get_input_details()[0]['index']
-    input_tensor = interpreter.tensor(tensor_index)()[0]
-    input_tensor[:, :] = image
+    input_tensor = np.expand_dims(image, 0)
 
 
 def get_output_tensor(interpreter, index):
@@ -68,7 +66,7 @@ def get_output_tensor(interpreter, index):
 
 def detect_objects(interpreter, image, threshold):
     """Returns a list of detection results, each a dictionary of object info."""
-    set_input_tensor(interpreter, image)
+    input_tensor = np.expand_dims(image, 0)
     interpreter.invoke()
 
     # Get all output details
@@ -106,13 +104,32 @@ def annotate_objects(annotator, results, labels):
                        '%s\n%.2f' % (labels[obj['class_id']], obj['score']))
 
 
+def load_image_into_numpy_array(data: io.BytesIO):
+    """Load an image from file into a numpy array.
+
+    Puts image into numpy array to feed into tensorflow graph.
+    Note that by convention we put it into a numpy array with shape
+    (height, width, channels), where channels=3 for RGB.
+
+    Args:
+      path: a file path (this can be local or on colossus)
+
+    Returns:
+      uint8 numpy array with shape (img_height, img_width, 3)
+    """
+    image = Image.open(data)
+    (im_width, im_height) = image.size
+    return np.array(image.getdata()).reshape(
+        (im_height, im_width, 3)).astype(np.uint8)
+
+
 def run_tensorflow_inference(queue: Queue):
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument(
         '--model', help='File path of .tflite file.', required=True)
     parser.add_argument(
-        '--labels', help='File path of labels file.', required=True)
+       '--labels', help='File path of labels file.', required=True)
     parser.add_argument(
         '--threshold',
         help='Score threshold for detected objects.',
@@ -124,8 +141,8 @@ def run_tensorflow_inference(queue: Queue):
     labels = load_labels(args.labels)
     interpreter = Interpreter(args.model)
     interpreter.allocate_tensors()
-    _, input_height, input_width, _ = interpreter.get_input_details()[
-        0]['shape']
+
+    _, input_height, input_width, _ = interpreter.get_input_details()[0]['shape']
 
     with picamera.PiCamera(
             resolution=(CAMERA_WIDTH, CAMERA_HEIGHT), framerate=30) as camera:
@@ -137,10 +154,16 @@ def run_tensorflow_inference(queue: Queue):
             for _ in camera.capture_continuous(
                     stream, format='jpeg', use_video_port=True):
                 stream.seek(0)
-                image = Image.open(stream).convert('RGB').resize(
-                    (input_width, input_height), Image.ANTIALIAS)
+                # image = Image.open(stream).convert('RGB').resize(
+                #   (input_width, input_height), Image.ANTIALIAS)
+                image = load_image_into_numpy_array(stream)
+
                 start_time = time.monotonic()
                 results = detect_objects(interpreter, image, args.threshold)
+                
+                input_tensor = np.expand_dims(image, 0)
+                interpreter.invoke()
+                results = interpreter.get_output_details()
                 elapsed_ms = (time.monotonic() - start_time) * 1000
 
                 annotator.clear()
