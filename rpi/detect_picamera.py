@@ -138,8 +138,7 @@ def run_tensorflow_inference(queue: Queue):
         default=0.4)
     args = parser.parse_args()
 
-    # labels = load_labels(args.labels)
-    labels = None
+    labels = load_labels(args.labels)
     interpreter = Interpreter(args.model)
     interpreter.allocate_tensors()
 
