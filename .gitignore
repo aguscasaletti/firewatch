@@ -1,3 +1,5 @@
 __pycache__
 
 /model/tests/models
+env
+/rpi_simulation/models
