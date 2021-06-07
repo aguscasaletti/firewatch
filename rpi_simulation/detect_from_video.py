@@ -38,8 +38,8 @@ from object_detection.utils import visualization_utils as viz_utils
 
 
 VIDEO_SOURCE_PATH = '../footage/20160619 to 20160621 San Diego Border Fire.mp4'
-# MODEL_PATH = '../model/sample_saved_model'
-MODEL_PATH = '../model/trained_model_efficientdet_d0_5000_steps'
+MODEL_PATH = '../model/sample_saved_model'
+# MODEL_PATH = '../model/trained_model_efficientdet_d0_5000_steps'
 
 # Load the Smoke Label Map
 category_index = {
@@ -144,8 +144,6 @@ def run_tensorflow_inference(queue: Queue):
         *'mp4v'), fps, (640, 480), True)
 
     elapsed = []
-
-    print('starting video capture')
     while cap.isOpened():
         # Reads frame
         ret, image_np = cap.read()
@@ -242,8 +240,3 @@ if __name__ == '__main__':
     video_stream_proc.start()
 
     tf_proc.join()
-
-    # run_tensorflow_inference(Queue())
-
-    # Don't use PNG images since they have a 4th dimension for transparency
-    # test_image('../footage/test_inference_image.jpg')
