@@ -26,13 +26,15 @@ def camera_event(
     """
     Create new camera event.
     """
+    print(request_body)
     event = camera_events_repository.create(db, obj_in=request_body)
 
     if request_body.status == 'smoke_detected' \
             and request_body.score \
             and request_body.score > ALERTING_THRESHOLD:
         # If the video source shows smoke with high confidence, create an alert (if there's not one already for this cam)
-        pending_alerts = alerts_repository.find_with_status_and_camera_id(db, event.camera_id, status='pending_review')
+        pending_alerts = alerts_repository.find_with_status_and_camera_id(
+            db, event.camera_id, status='pending_review')
         if not len(pending_alerts):
             alert: AlertCreate = AlertCreate(
                 status='pending_review',
@@ -55,7 +57,8 @@ def get_cameras(
     Retrieve cameras.
     """
 
-    cameras = cameras_repository.get_multi(db, order_by, skip=skip, limit=limit, desc=desc)
+    cameras = cameras_repository.get_multi(
+        db, order_by, skip=skip, limit=limit, desc=desc)
 
     return cameras
 

@@ -16,4 +16,4 @@ class Camera(Base):
     location_lat = Column(Float)
     location_lng = Column(Float)
     events: RelationshipProperty = relationship("CameraEvent", back_populates="camera")
-    mock_resource = Column(String)
+    video_source_url = Column(String)

@@ -1,16 +1,24 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { Button } from '@chakra-ui/button'
 import { ChevronUpIcon } from '@chakra-ui/icons'
-import { Flex, Heading, List, ListIcon, Spacer, Text } from '@chakra-ui/layout'
+import {
+  Box,
+  Flex,
+  Heading,
+  List,
+  ListIcon,
+  Spacer,
+  Text,
+} from '@chakra-ui/layout'
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu'
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ComponentWithAs } from '@chakra-ui/system'
 
 import { Route, UserInfo } from 'types/domain'
-import { IoDocumentTextOutline, IoPersonOutline } from 'react-icons/io5'
-import { FiTruck } from 'react-icons/fi'
-import { GiHealthNormal } from 'react-icons/gi'
+import { FaWarehouse } from 'react-icons/fa'
+import { FiAlertCircle, FiUsers } from 'react-icons/fi'
+import { AiOutlineVideoCamera, AiFillFire } from 'react-icons/ai'
 
 interface SideNavItem {
   label: string
@@ -20,19 +28,19 @@ interface SideNavItem {
 const sideNavItems: Record<string, SideNavItem> = {
   '/home/cameras': {
     label: 'Cámaras',
-    icon: GiHealthNormal,
+    icon: AiOutlineVideoCamera,
   },
   '/home/stations': {
     label: 'Cuarteles',
-    icon: GiHealthNormal,
+    icon: FaWarehouse,
   },
   '/home/alerts': {
     label: 'Alertas',
-    icon: GiHealthNormal,
+    icon: FiAlertCircle,
   },
   '/home/users': {
     label: 'Usuarios',
-    icon: GiHealthNormal,
+    icon: FiUsers,
   },
 }
 
@@ -55,11 +63,14 @@ const SideNav: React.FunctionComponent<SideNavProps> = ({
       height="100%"
       padding="5"
       flexDirection="column"
-      backgroundColor="blue.800"
+      backgroundColor="#253649"
     >
-      <Heading color="white" size="md" marginBottom="8">
-        Firewatch
-      </Heading>
+      <Flex marginBottom="8" alignItems="center">
+        <AiFillFire size="25" color="white" display="inline-block" />
+        <Heading ml="3" color="white" size="md">
+          Firewatch
+        </Heading>
+      </Flex>
 
       {authorizedRoutes.map((section, idx) => {
         return (
@@ -86,7 +97,7 @@ const SideNav: React.FunctionComponent<SideNavProps> = ({
                         borderRadius="md"
                         backgroundColor={
                           window.location.pathname === r
-                            ? 'blue.900'
+                            ? 'gray.800'
                             : undefined
                         }
                       >

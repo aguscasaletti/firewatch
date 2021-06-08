@@ -15,9 +15,10 @@ export interface UserInfo {
 export interface Camera {
   id: number
   name: string
-  status: string
+  status: 'ok' | 'warning' | 'fire_in_progress'
   location_lat: number
   location_lng: number
+  video_source_url: string
 }
 
 export interface Alert {

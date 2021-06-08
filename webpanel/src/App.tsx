@@ -11,6 +11,16 @@ import FullScreenLoading from 'components/FullScreenLoading'
 import ErrorScreen from 'components/ErrorScreen/ErrorScreen'
 import { UserContextProvider } from 'context/userContext'
 import { QueryClient, QueryClientProvider } from 'react-query'
+import { CameraContextProvider } from 'context/cameraContext'
+import { extendTheme, ThemeConfig } from '@chakra-ui/react'
+import { AlertsContextProvider } from 'context/alertsContext'
+
+const themeConfig: ThemeConfig = {
+  initialColorMode: 'dark',
+  useSystemColorMode: false,
+}
+
+const theme = extendTheme({ config: themeConfig })
 
 const twentyFourHoursInMs = 1000 * 60 * 60 * 24
 const queryClient = new QueryClient({
@@ -46,24 +56,28 @@ class App extends React.PureComponent {
       <div style={{ width: '100%', height: '100%' }}>
         <QueryClientProvider client={queryClient}>
           <UserContextProvider>
-            <ChakraProvider>
-              {this.state.error ? (
-                <ErrorScreen message={this.state.error} />
-              ) : (
-                <Router>
-                  <Suspense fallback={<FullScreenLoading />}>
-                    <Switch>
-                      <Route path="/home" component={Home} />
-                      <Route exact path="/">
-                        <Redirect to="/home" />
-                      </Route>
-                      <Route path="*">
-                        <h1>Not found</h1>
-                      </Route>
-                    </Switch>
-                  </Suspense>
-                </Router>
-              )}
+            <ChakraProvider theme={theme}>
+              <AlertsContextProvider>
+                <CameraContextProvider>
+                  {this.state.error ? (
+                    <ErrorScreen message={this.state.error} />
+                  ) : (
+                    <Router>
+                      <Suspense fallback={<FullScreenLoading />}>
+                        <Switch>
+                          <Route path="/home" component={Home} />
+                          <Route exact path="/">
+                            <Redirect to="/home" />
+                          </Route>
+                          <Route path="*">
+                            <h1>Not found</h1>
+                          </Route>
+                        </Switch>
+                      </Suspense>
+                    </Router>
+                  )}
+                </CameraContextProvider>
+              </AlertsContextProvider>
             </ChakraProvider>
           </UserContextProvider>
         </QueryClientProvider>

@@ -8,23 +8,40 @@ import { useHistory } from 'react-router'
 import { useDisclosure } from '@chakra-ui/hooks'
 import FormDrawer from 'components/FormDrawer/FormDrawer'
 import { DeleteIcon, EditIcon } from '@chakra-ui/icons'
-import { useMutation } from 'react-query'
+import { useMutation, useQuery } from 'react-query'
 import { useToast } from '@chakra-ui/toast'
-import video from 'assets/san_diego_border_fire_trimmed.mp4'
-import VideoSource from './VideoSource'
+import Cam from './Cam'
+import { fetchCameras } from 'services/alerts'
+import FullScreenLoading from 'components/FullScreenLoading'
+import ErrorScreen from 'components/ErrorScreen/ErrorScreen'
+import { mockedCameras } from './mocks'
 
 const Cameras: React.FC<any> = () => {
   const history = useHistory()
   const toast = useToast()
 
+  const { data, isLoading, isError } = useQuery('fetchCameras', fetchCameras)
+
+  if (isLoading) {
+    return <FullScreenLoading />
+  }
+
+  if (isError) {
+    return (
+      <ErrorScreen message="Hubo un error al intentar buscar las cámaras activas" />
+    )
+  }
+
+  const cameras = [...(data || []), ...mockedCameras]
+
   return (
     <Box padding="5">
-      <Heading size="lg">Cámaras activas</Heading>
+      <Heading size="lg">Cámaras inteligentes</Heading>
       <Spacer height="10" />
-      <SimpleGrid minChildWidth="300px" spacing="20px">
-        <img src="http://localhost:8080/cam.mjpg" />
-        <VideoSource src={video} />
-        <VideoSource src={video} />
+      <SimpleGrid minChildWidth="320px" spacing="20px">
+        {cameras?.map((cam) => (
+          <Cam key={cam.id} camera={cam} />
+        ))}
       </SimpleGrid>
     </Box>
   )

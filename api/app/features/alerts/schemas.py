@@ -29,6 +29,7 @@ class CameraResponse(BaseModel):
     status: str
     location_lat: float
     location_lng: float
+    video_source_url: str
 
     class Config:
         orm_mode = True

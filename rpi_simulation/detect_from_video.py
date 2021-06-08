@@ -22,6 +22,7 @@ from __future__ import print_function
 import argparse
 import io
 import re
+import json
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from multiprocessing import Process, Pipe, Queue
@@ -29,9 +30,11 @@ from multiprocessing import Process, Pipe, Queue
 import numpy as np
 import tensorflow as tf
 from six import BytesIO
+import six
 from PIL import Image
 import cv2
 import matplotlib.pyplot as plt
+import requests
 
 from annotation import Annotator
 from object_detection.utils import visualization_utils as viz_utils
@@ -39,6 +42,7 @@ from object_detection.utils import visualization_utils as viz_utils
 
 VIDEO_SOURCE_PATH = '../footage/20160619 to 20160621 San Diego Border Fire.mp4'
 MODEL_PATH = '../model/sample_saved_model'
+API_EVENTS_ENDPOINT = 'http://localhost:8000/api/camera-events'
 # MODEL_PATH = '../model/trained_model_efficientdet_d0_5000_steps'
 
 # Load the Smoke Label Map
@@ -136,6 +140,42 @@ def plot_detections(image_np,
     return image_np_with_annotations
 
 
+def get_camera_event_payload(score, image_np_with_detections):
+    alerting_threshold = 80
+    if score < alerting_threshold:
+        return json.dumps({
+            'camera_id': 1,
+            'status': 'ok'
+        })
+
+    return json.dumps({
+        'camera_id': 1,
+        'status': 'smoke_detected',
+        'score': score,
+    })
+
+
+def get_smoke_detection_score(boxes, classes, scores):
+    for i in range(boxes.shape[0]):
+        if scores is not None and classes[i] in six.viewkeys(category_index):
+            class_name = category_index[classes[i]]['name']
+            score = round(100*scores[i])
+            return score
+
+    return 0
+
+
+# def get_smoke_detection_score(boxes, classes, scores):
+#     min_score_threshold = .2
+
+#     for i in range(boxes.shape[0]):
+#         if scores is None or scores[i] > min_score_threshold:
+#             display_str = ''
+#             if classes[i] in six.viewkeys(category_index):
+#                 class_name = category_index[classes[i]]['name']
+#                 score = round(100*scores[i])
+#                 return score
+
 def run_tensorflow_inference(queue: Queue):
     detect_fn = tf.saved_model.load(MODEL_PATH)
     cap = cv2.VideoCapture(VIDEO_SOURCE_PATH)
@@ -161,10 +201,9 @@ def run_tensorflow_inference(queue: Queue):
 
             plt.rcParams['figure.figsize'] = [42, 21]
             label_id_offset = 1
-            image_np_with_detections = image_np.copy()
 
             image_np_with_detections = plot_detections(
-                image_np_with_detections,
+                image_np.copy(),
                 detections['detection_boxes'][0].numpy(),
                 detections['detection_classes'][0].numpy().astype(np.uint32),
                 detections['detection_scores'][0].numpy(),
@@ -172,6 +211,16 @@ def run_tensorflow_inference(queue: Queue):
                 figsize=(15, 20),
                 image_name="detection.jpg"
             )
+            score = get_smoke_detection_score(
+                detections['detection_boxes'][0].numpy(),
+                detections['detection_classes'][0].numpy().astype(np.uint32),
+                detections['detection_scores'][0].numpy()
+            )
+
+            # TODO prevent flooding server with OK messages. Send one per minute.
+            payload = get_camera_event_payload(score, image_np_with_detections)
+            response = requests.post(API_EVENTS_ENDPOINT, data=payload)
+            print(response.text)
 
             queue.put(image_np_with_detections)
             out.write(image_np_with_detections)

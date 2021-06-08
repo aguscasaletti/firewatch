@@ -10,6 +10,8 @@ import Sidenav from 'components/Sidenav/Sidenav'
 import UserContext from 'context/userContext'
 import FullScreenLoading from 'components/FullScreenLoading'
 import ErrorScreen from 'components/ErrorScreen/ErrorScreen'
+import { CameraContextProvider } from 'context/cameraContext'
+import { AlertsContextProvider } from 'context/alertsContext'
 import flatten from 'lodash/flatten'
 import { Box, Flex } from '@chakra-ui/layout'
 
@@ -59,23 +61,27 @@ const Home: React.FC = () => {
     : []
 
   return (
-    <Flex height="100%">
-      <Sidenav
-        logout={logout}
-        authorizedRoutes={authorizedRoutes || []}
-        userInfo={userInfo}
-      />
-      <Box flex={1} overflow="auto">
-        <Suspense fallback={<FullScreenLoading />}>
-          <Switch>
-            {routes.map((r) => getRouteElement(r))}
-            <Route exact path={path}>
-              <Redirect to={getDefaultRoute(routes)} />
-            </Route>
-          </Switch>
-        </Suspense>
-      </Box>
-    </Flex>
+    <AlertsContextProvider>
+      <CameraContextProvider>
+        <Flex height="100%">
+          <Sidenav
+            logout={logout}
+            authorizedRoutes={authorizedRoutes || []}
+            userInfo={userInfo}
+          />
+          <Box backgroundColor="#1d2d3f" flex={1} overflow="auto">
+            <Suspense fallback={<FullScreenLoading />}>
+              <Switch>
+                {routes.map((r) => getRouteElement(r))}
+                <Route exact path={path}>
+                  <Redirect to={getDefaultRoute(routes)} />
+                </Route>
+              </Switch>
+            </Suspense>
+          </Box>
+        </Flex>
+      </CameraContextProvider>
+    </AlertsContextProvider>
   )
 }
 

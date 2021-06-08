@@ -1,15 +1,16 @@
 import snakeCase from 'lodash/snakeCase'
 import mapKeys from 'lodash/mapKeys'
 
-import { Alert } from 'types/domain'
+import { Alert, Camera } from 'types/domain'
 import { axiosInstance } from 'utils/axiosInstance'
+import { Paginable } from 'types/data-table'
 
 export const fetchAlertsPendingReview = async (): Promise<Alert[]> => {
   const searchParams = new URLSearchParams({
     status: 'pending_review',
   })
   const response = await axiosInstance.get<Alert[]>(
-    `/alerts${searchParams.toString()}`,
+    `/alerts?${searchParams.toString()}`,
   )
   return response.data
 }
@@ -17,6 +18,11 @@ export const fetchAlertsPendingReview = async (): Promise<Alert[]> => {
 export const fetchAlertByID = async (id: number): Promise<Alert> => {
   const response = await axiosInstance.get<Alert>(`/alerts/${id}`)
   return response.data
+}
+
+export const fetchCameras = async (): Promise<Camera[]> => {
+  const response = await axiosInstance.get<Paginable<Camera>>(`/cameras`)
+  return response.data.data
 }
 
 export const updateAlert =
