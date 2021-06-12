@@ -24,6 +24,7 @@ import io
 import re
 import json
 import time
+import base64
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from multiprocessing import Process, Pipe, Queue
 
@@ -40,7 +41,7 @@ from annotation import Annotator
 from object_detection.utils import visualization_utils as viz_utils
 
 
-VIDEO_SOURCE_PATH = '../footage/20160619 to 20160621 San Diego Border Fire.mp4'
+VIDEO_SOURCE_PATH = '../footage/20160619 to 20160621 San Diego Border Fire (trimmed to fire).mp4'
 MODEL_PATH = '../model/sample_saved_model'
 API_EVENTS_ENDPOINT = 'http://localhost:8000/api/camera-events'
 # MODEL_PATH = '../model/trained_model_efficientdet_d0_5000_steps'
@@ -141,17 +142,22 @@ def plot_detections(image_np,
 
 
 def get_camera_event_payload(score, image_np_with_detections):
-    alerting_threshold = 80
+    alerting_threshold = 50
     if score < alerting_threshold:
         return json.dumps({
             'camera_id': 1,
             'status': 'ok'
         })
 
+    image_capture = numpy_image_to_base64_string(image_np_with_detections)
+    with open("test_base64.txt", "w+") as f:
+        f.write(image_capture)
+
     return json.dumps({
         'camera_id': 1,
         'status': 'smoke_detected',
         'score': score,
+        'image_capture': image_capture
     })
 
 
@@ -165,6 +171,15 @@ def get_smoke_detection_score(boxes, classes, scores):
     return 0
 
 
+def numpy_image_to_base64_string(image_np):
+    print('about to encode image')
+    # image_np = cv2.resize(image_np, (300, 300))
+    # print('1')
+    image_np = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
+    success, image_bytes = cv2.imencode('.jpg', image_np)
+
+    return base64.b64encode(image_bytes).decode('utf-8')
+
 # def get_smoke_detection_score(boxes, classes, scores):
 #     min_score_threshold = .2
 
@@ -175,6 +190,7 @@ def get_smoke_detection_score(boxes, classes, scores):
 #                 class_name = category_index[classes[i]]['name']
 #                 score = round(100*scores[i])
 #                 return score
+
 
 def run_tensorflow_inference(queue: Queue):
     detect_fn = tf.saved_model.load(MODEL_PATH)
@@ -219,7 +235,10 @@ def run_tensorflow_inference(queue: Queue):
 
             # TODO prevent flooding server with OK messages. Send one per minute.
             payload = get_camera_event_payload(score, image_np_with_detections)
+
+            print('about to send req')
             response = requests.post(API_EVENTS_ENDPOINT, data=payload)
+            print('req sent')
             print(response.text)
 
             queue.put(image_np_with_detections)

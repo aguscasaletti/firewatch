@@ -22,11 +22,12 @@ const authorizedRoutes = [
       '/home/cameras',
       '/home/alerts/:id/details',
       '/home/alerts/:id/notifications',
+      '/home/alerts',
     ],
   },
   {
     label: 'Administración',
-    routes: ['/home/stations', '/home/alerts', '/home/users'],
+    routes: ['/home/stations', '/home/users'],
   },
 ]
 
@@ -35,9 +36,11 @@ const AlertDetails = lazy(() => import('pages/alert-details/AlertDetails'))
 const AlertNotifications = lazy(
   () => import('pages/alert-notifications/AlertNotifications'),
 )
+const Alerts = lazy(() => import('pages/alerts/Alerts'))
 
 const componentsByRoute: Record<string, React.FC<BrowserRouterProps>> = {
   '/home/cameras': Cameras,
+  '/home/alerts': Alerts,
   '/home/alerts/:id/details': AlertDetails,
   '/home/alerts/:id/notifications': AlertNotifications,
 }

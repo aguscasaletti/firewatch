@@ -15,6 +15,11 @@ export const fetchAlertsPendingReview = async (): Promise<Alert[]> => {
   return response.data
 }
 
+export const fetchAllAlerts = async (): Promise<Alert[]> => {
+  const response = await axiosInstance.get<Alert[]>(`/alerts`)
+  return response.data
+}
+
 export const fetchAlertByID = async (id: number): Promise<Alert> => {
   const response = await axiosInstance.get<Alert>(`/alerts/${id}`)
   return response.data

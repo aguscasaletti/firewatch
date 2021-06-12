@@ -12,9 +12,9 @@ if TYPE_CHECKING:
 
 class CameraEvent(Base):
     id = Column(Integer, primary_key=True, index=True)
-    status = Column(String)  # ok, smoke_detected
+    status = Column(String(100))  # ok, smoke_detected
     score = Column(Float)  # confidence score predicted by our NN
-    annotated_image = Column(String)  # Base64 annotated image capture
     created_date = Column(DateTime, default=datetime.utcnow)
-    camera_id = Column(Integer, ForeignKey("camera.id", name="CameraEvent_Camera_FK"))
+    camera_id = Column(Integer, ForeignKey(
+        "camera.id", name="CameraEvent_Camera_FK"))
     camera: RelationshipProperty = relationship('Camera', lazy='joined')

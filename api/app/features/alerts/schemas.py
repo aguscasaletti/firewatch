@@ -1,12 +1,13 @@
 from typing import Optional
 from pydantic import BaseModel
+from datetime import datetime
 
 
 class CameraEventRequest(BaseModel):
     camera_id: int
     status: str
     score: Optional[float]
-    annotated_image: Optional[str]
+    image_capture: Optional[str]
 
 
 class CameraEventResponse(BaseModel):
@@ -41,6 +42,7 @@ class AlertCreate(BaseModel):
     details: Optional[str]
     location_lat: Optional[float]
     location_lng: Optional[float]
+    image_capture: str
 
 
 class AlertUpdate(BaseModel):
@@ -58,6 +60,14 @@ class AlertResponse(BaseModel):
     location_lng: Optional[float]
     camera_id: int
     camera: CameraResponse
+    created_date: Optional[datetime]
+
+    class Config:
+        orm_mode = True
+
+
+class AlertDetailsResponse(AlertResponse):
+    image_capture: str
 
     class Config:
         orm_mode = True

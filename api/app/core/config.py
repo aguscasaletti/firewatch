@@ -26,23 +26,23 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     PROJECT_NAME: str
-    MSSQL_HOST: str
-    MSSQL_USER: str
-    MSSQL_PASSWORD: str
-    MSSQL_DB: str
+    MYSQL_HOST: str
+    MYSQL_USER: str
+    MYSQL_PASSWORD: str
+    MYSQL_DB: str
     SQLALCHEMY_DATABASE_URI: Optional[str] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
         if isinstance(v, str):
             return v
-        user = os.getenv("MSSQL_USER", "sa")
-        password = os.getenv("MSSQL_PASSWORD", "")
-        server = os.getenv("MSSQL_HOST", "")
-        db = os.getenv("MSSQL_DB", "app")
-        driver = os.getenv("MSSQL_DRIVER", "FreeTDS")
+        user = os.getenv("MYSQL_USER", "sa")
+        password = os.getenv("MYSQL_PASSWORD", "")
+        server = os.getenv("MYSQL_HOST", "")
+        db = os.getenv("MYSQL_DB", "app")
+        driver = os.getenv("MYSQL_DRIVER", "FreeTDS")
 
-        return f"mssql+pyodbc://{user}:{password}@{server}:1433/{db}?driver={driver}"
+        return f"mysql+mysqldb://{user}:{password}@{server}:3306/{db}"
 
     class Config:
         case_sensitive = True

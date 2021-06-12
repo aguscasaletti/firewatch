@@ -31,7 +31,7 @@ target_metadata = Base.metadata
 
 
 def get_url():
-    prefix = "MSSQL_"
+    prefix = "MYSQL_"
     if os.getenv("ENV", "development") == "production":
         print("Using PRODUCTION database! - Be careful!")
         prefix += "PROD_"
@@ -41,7 +41,7 @@ def get_url():
     server = os.getenv(f"{prefix}HOST", "")
     db = os.getenv(f"{prefix}DB", "app")
     driver = os.getenv(f"{prefix}DRIVER", "FreeTDS")
-    return f"mssql+pyodbc://{user}:{password}@{server}:1433/{db}?driver={driver}"
+    return f"mysql+mysqldb://{user}:{password}@{server}:3306/{db}"
 
 
 def run_migrations_offline():

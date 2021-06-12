@@ -11,9 +11,10 @@ if TYPE_CHECKING:
 
 class Camera(Base):
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String)
-    status = Column(String)  # ok, warning, fire_in_progress
+    name = Column(String(500))
+    status = Column(String(100))  # ok, warning, fire_in_progress
     location_lat = Column(Float)
     location_lng = Column(Float)
-    events: RelationshipProperty = relationship("CameraEvent", back_populates="camera")
-    video_source_url = Column(String)
+    events: RelationshipProperty = relationship(
+        "CameraEvent", back_populates="camera")
+    video_source_url = Column(String(500))

@@ -11,9 +11,7 @@ import FullScreenLoading from 'components/FullScreenLoading'
 import ErrorScreen from 'components/ErrorScreen/ErrorScreen'
 import { UserContextProvider } from 'context/userContext'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { CameraContextProvider } from 'context/cameraContext'
 import { extendTheme, ThemeConfig } from '@chakra-ui/react'
-import { AlertsContextProvider } from 'context/alertsContext'
 
 const themeConfig: ThemeConfig = {
   initialColorMode: 'dark',
@@ -57,8 +55,6 @@ class App extends React.PureComponent {
         <QueryClientProvider client={queryClient}>
           <UserContextProvider>
             <ChakraProvider theme={theme}>
-              <AlertsContextProvider>
-                <CameraContextProvider>
                   {this.state.error ? (
                     <ErrorScreen message={this.state.error} />
                   ) : (
@@ -76,8 +72,6 @@ class App extends React.PureComponent {
                       </Suspense>
                     </Router>
                   )}
-                </CameraContextProvider>
-              </AlertsContextProvider>
             </ChakraProvider>
           </UserContextProvider>
         </QueryClientProvider>

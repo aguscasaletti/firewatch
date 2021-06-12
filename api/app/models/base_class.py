@@ -7,7 +7,7 @@ from sqlalchemy import Column,  DateTime
 @as_declarative()
 class Base:
     id: Any
-    deleted = Column('eliminado', DateTime)
+    deleted = Column(DateTime)
     __name__: str
 
     # Generate __tablename__ automatically
