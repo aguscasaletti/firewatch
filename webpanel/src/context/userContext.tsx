@@ -1,7 +1,5 @@
 import React, { createContext, useCallback } from 'react'
-import { useMutation, useQuery } from 'react-query'
-import { fetchCurrentUserInfo } from 'services/user'
-import { Route, UserInfo } from 'types/domain'
+import { UserInfo } from 'types/domain'
 
 interface UserContextValue {
   userInfo: UserInfo

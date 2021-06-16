@@ -19,14 +19,11 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import argparse
-import io
-import re
 import json
 import time
 import base64
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from multiprocessing import Process, Pipe, Queue
+from multiprocessing import Process, Queue
 
 import numpy as np
 import tensorflow as tf
@@ -37,7 +34,6 @@ import cv2
 import matplotlib.pyplot as plt
 import requests
 
-from annotation import Annotator
 from object_detection.utils import visualization_utils as viz_utils
 
 
@@ -53,7 +49,8 @@ category_index = {
 
 
 def load_image_into_numpy_array(path):
-    """Load an image from file into a numpy array.
+    """
+    Loads an image from file into a numpy array.
 
     Puts image into numpy array to feed into tensorflow graph.
     Note that by convention we put it into a numpy array with shape
@@ -73,6 +70,9 @@ def load_image_into_numpy_array(path):
 
 
 def single_image_inference(image_path: str):
+    """
+    Runs a single inference for a given image path using a trained tf2 model
+    """
     detect_fn = tf.saved_model.load(MODEL_PATH)
     image_np = load_image_into_numpy_array(image_path)
     input_tensor = np.expand_dims(image_np, 0)
@@ -83,7 +83,6 @@ def single_image_inference(image_path: str):
     print(f'running inference, took: {elapsed_time} ms')
 
     plt.rcParams['figure.figsize'] = [42, 21]
-    label_id_offset = 1
     image_np_with_detections = image_np.copy()
 
     plot_detections(
@@ -107,7 +106,8 @@ def plot_detections(image_np,
                     image_name=None,
                     render_image=False
                     ):
-    """Wrapper function to visualize detections.
+    """
+    Wrapper function to visualize detections.
 
     Args:
       image_np: uint8 numpy array with shape (img_height, img_width, 3)
@@ -118,7 +118,8 @@ def plot_detections(image_np,
         this function assumes that the boxes to be plotted are groundtruth
         boxes and plot all boxes as black with no classes or scores.
       category_index: a dict containing category dictionaries (each holding
-        category index `id` and category name `name`) keyed by category indices.
+        category index `id` and category name `name`) keyed by category
+        indices.
       figsize: size for the figure.
       image_name: a name for the image file.
     """
@@ -162,9 +163,12 @@ def get_camera_event_payload(score, image_np_with_detections):
 
 
 def get_smoke_detection_score(boxes, classes, scores):
+    """
+    Function that returns the detection score for the single class the model
+        is evaluating.
+    """
     for i in range(boxes.shape[0]):
         if scores is not None and classes[i] in six.viewkeys(category_index):
-            class_name = category_index[classes[i]]['name']
             score = round(100*scores[i])
             return score
 
@@ -172,27 +176,22 @@ def get_smoke_detection_score(boxes, classes, scores):
 
 
 def numpy_image_to_base64_string(image_np):
-    print('about to encode image')
-    # image_np = cv2.resize(image_np, (300, 300))
-    # print('1')
+    """
+    Function that will convert a numpy image (3-dimensional vector)
+        into a base64 string.
+    """
     image_np = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
     success, image_bytes = cv2.imencode('.jpg', image_np)
 
     return base64.b64encode(image_bytes).decode('utf-8')
 
-# def get_smoke_detection_score(boxes, classes, scores):
-#     min_score_threshold = .2
-
-#     for i in range(boxes.shape[0]):
-#         if scores is None or scores[i] > min_score_threshold:
-#             display_str = ''
-#             if classes[i] in six.viewkeys(category_index):
-#                 class_name = category_index[classes[i]]['name']
-#                 score = round(100*scores[i])
-#                 return score
-
 
 def run_tensorflow_inference(queue: Queue):
+    """
+    Run inference using a trained model.
+    Args:
+    - queue: used to stream values off to another process (like a web server)
+    """
     detect_fn = tf.saved_model.load(MODEL_PATH)
     cap = cv2.VideoCapture(VIDEO_SOURCE_PATH)
     fps = 50
@@ -206,7 +205,7 @@ def run_tensorflow_inference(queue: Queue):
         # Transform frame from BGR to RBG!
         image_np = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)
 
-        if ret == True:
+        if ret:
             input_tensor = np.expand_dims(image_np, 0)
             start_time = time.time()
             detections = detect_fn(input_tensor)
@@ -216,7 +215,6 @@ def run_tensorflow_inference(queue: Queue):
             elapsed.append(elapsed_time)
 
             plt.rcParams['figure.figsize'] = [42, 21]
-            label_id_offset = 1
 
             image_np_with_detections = plot_detections(
                 image_np.copy(),
@@ -233,13 +231,10 @@ def run_tensorflow_inference(queue: Queue):
                 detections['detection_scores'][0].numpy()
             )
 
-            # TODO prevent flooding server with OK messages. Send one per minute.
+            # TODO prevent flooding server with OK messages.
+            # Send one per minute.
             payload = get_camera_event_payload(score, image_np_with_detections)
-
-            print('about to send req')
-            response = requests.post(API_EVENTS_ENDPOINT, data=payload)
-            print('req sent')
-            print(response.text)
+            requests.post(API_EVENTS_ENDPOINT, data=payload)
 
             queue.put(image_np_with_detections)
             out.write(image_np_with_detections)
@@ -256,16 +251,21 @@ def run_tensorflow_inference(queue: Queue):
 
 
 def run_video_stream(queue: Queue):
+    """
+    Runs MJPG server through HTTP.
+    Args:
+    - queue: A queue from which it can receive more images to display
+    """
     class CamHandler(BaseHTTPRequestHandler):
         def do_GET(self):
             if self.path.endswith('.mjpg'):
                 self.send_response(200)
                 self.send_header(
-                    'Content-type', 'multipart/x-mixed-replace; boundary=--jpgboundary')
+                    'Content-type',
+                    'multipart/x-mixed-replace; boundary=--jpgboundary'
+                )
                 self.end_headers()
-                stream = io.BytesIO()
                 try:
-                    start = time.time()
                     while True:
                         image_np = queue.get()
                         image_np = cv2.cvtColor(image_np, cv2.COLOR_BGR2RGB)

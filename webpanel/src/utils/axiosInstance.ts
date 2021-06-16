@@ -5,11 +5,6 @@ export const axiosInstance = axios.create({
   withCredentials: true,
 })
 
-export const cerberusAxiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_CERBERUS_API_BASE_URL,
-  withCredentials: true,
-})
-
 // Add a response interceptor
 axiosInstance.interceptors.response.use(
   function (response) {

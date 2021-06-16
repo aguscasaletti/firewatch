@@ -31,6 +31,7 @@ const RawVideoSource: React.FC<RawVideoSourceProps> = ({
       <img
         style={{ marginLeft: 'auto', marginRight: 'auto', ...style }}
         src={camera.video_source_url}
+        alt="video-source"
       />
     </Box>
   )

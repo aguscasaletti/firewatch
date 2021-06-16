@@ -1,30 +1,18 @@
-import { Image } from '@chakra-ui/image'
-import { Box, Flex, Heading, SimpleGrid, Spacer, Text } from '@chakra-ui/layout'
-import FullScreenLoading from 'components/FullScreenLoading'
 import React, { useState } from 'react'
+import { Box, Flex, Heading, SimpleGrid, Spacer, Text } from '@chakra-ui/layout'
 import { useQuery } from 'react-query'
 import { useHistory, useParams } from 'react-router'
+import { Table, Thead, Tbody, Tfoot, Tr, Th, Td } from '@chakra-ui/react'
 import GoogleMapReact from 'google-map-react'
 import { fetchAlertByID } from 'services/alerts'
 import { FiCheck } from 'react-icons/fi'
 import { GiPoliceBadge } from 'react-icons/gi'
-import { AiFillVideoCamera, AiFillFire } from 'react-icons/ai'
+import { AiFillFire } from 'react-icons/ai'
 import { IoMdCall, IoMdNotifications } from 'react-icons/io'
 import { BsListCheck } from 'react-icons/bs'
-import { Textarea } from '@chakra-ui/textarea'
 import { Button, IconButton } from '@chakra-ui/button'
 import BackButton from 'components/BackButton/BackButton'
-
-import {
-  Table,
-  Thead,
-  Tbody,
-  Tfoot,
-  Tr,
-  Th,
-  Td,
-  TableCaption,
-} from '@chakra-ui/react'
+import FullScreenLoading from 'components/FullScreenLoading'
 
 type LatLng = {
   lat: number
@@ -55,16 +43,13 @@ const mockedUsers = [
 const AlertNotifications: React.FC<any> = () => {
   const history = useHistory()
   const { id: alertID } = useParams<{ id: string }>()
-  const [latlng, setLatLng] = useState<LatLng>({
+  const [latlng] = useState<LatLng>({
     lat: -31.24903,
     lng: -64.428698,
   })
-  const { data, isLoading, isError } = useQuery(
-    ['fetchAleryById', alertID],
-    () => {
-      return fetchAlertByID(+alertID)
-    },
-  )
+  const { data, isLoading } = useQuery(['fetchAleryById', alertID], () => {
+    return fetchAlertByID(+alertID)
+  })
 
   if (isLoading) {
     return <FullScreenLoading />

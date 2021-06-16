@@ -1,6 +1,6 @@
 import React, { useContext } from 'react'
 import { Camera } from 'types/domain'
-import { Badge, Box, Flex, Heading, Text } from '@chakra-ui/layout'
+import { Badge, Box, Heading } from '@chakra-ui/layout'
 import CameraContext from 'context/cameraContext'
 import { mockedVideos } from './mocks'
 
@@ -60,6 +60,7 @@ const Cam: React.FC<CamProps> = ({ camera }) => {
   return (
     <VideoWrapper camera={camera}>
       <img
+        alt="source"
         style={{ maxHeight: 275, width: '100%' }}
         src={camera.video_source_url}
       />

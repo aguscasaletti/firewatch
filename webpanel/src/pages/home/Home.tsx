@@ -9,7 +9,6 @@ import {
 import Sidenav from 'components/Sidenav/Sidenav'
 import UserContext from 'context/userContext'
 import FullScreenLoading from 'components/FullScreenLoading'
-import ErrorScreen from 'components/ErrorScreen/ErrorScreen'
 import { CameraContextProvider } from 'context/cameraContext'
 import { AlertsContextProvider } from 'context/alertsContext'
 import flatten from 'lodash/flatten'

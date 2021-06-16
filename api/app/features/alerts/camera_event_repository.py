@@ -3,7 +3,9 @@ from app.models import CameraEvent
 from .schemas import CameraEventRequest
 
 
-class CameraEventRepository(RepositoryBase[CameraEvent, CameraEventRequest, CameraEventRequest]):
+class CameraEventRepository(
+        RepositoryBase[CameraEvent, CameraEventRequest, CameraEventRequest]
+):
     pass
 
 

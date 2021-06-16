@@ -1,7 +1,6 @@
-import { Image } from '@chakra-ui/image'
+import React, { useState } from 'react'
 import { Box, Flex, Heading, SimpleGrid, Spacer, Text } from '@chakra-ui/layout'
 import FullScreenLoading from 'components/FullScreenLoading'
-import React, { useState } from 'react'
 import { useQuery } from 'react-query'
 import { useHistory, useParams } from 'react-router'
 import GoogleMapReact from 'google-map-react'
@@ -21,16 +20,13 @@ type LatLng = {
 const AlertDetails: React.FC<any> = () => {
   const history = useHistory()
   const { id: alertID } = useParams<{ id: string }>()
-  const [latlng, setLatLng] = useState<LatLng>({
+  const [latlng] = useState<LatLng>({
     lat: -31.265049,
     lng: -64.378698,
   })
-  const { data, isLoading, isError } = useQuery(
-    ['fetchAleryById', alertID],
-    () => {
-      return fetchAlertByID(+alertID)
-    },
-  )
+  const { data, isLoading } = useQuery(['fetchAleryById', alertID], () => {
+    return fetchAlertByID(+alertID)
+  })
 
   if (isLoading) {
     return <FullScreenLoading />
@@ -68,7 +64,10 @@ const AlertDetails: React.FC<any> = () => {
             Revisá la siguiente captura para confirmar o descartar la existencia
             de un incendio.
           </Text>
-          <img src={`data:image/jpeg;base64,${data?.image_capture}`} />
+          <img
+            alt="capture"
+            src={`data:image/jpeg;base64,${data?.image_capture}`}
+          />
         </Box>
         <Box>
           <Heading mb="3" size="md">

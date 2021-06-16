@@ -9,7 +9,7 @@ from .schemas import AlertCreate, AlertUpdate
 class PersistAlertRequest():
     status: str
     camera_id: int
-    image_capture: bytearray
+    image_capture: bytes
 
     def __init__(self, status: str, camera_id: int, image_capture: str):
         self.status = status
@@ -52,7 +52,8 @@ class AlertsRepository(RepositoryBase[Alert, AlertCreate, AlertUpdate]):
 
         return data
 
-    def create_from_request(self, db: Session, *, obj_in: PersistAlertRequest) -> Alert:
+    def create_from_request(self, db: Session, *,
+                            obj_in: PersistAlertRequest) -> Alert:
         alert = Alert(camera_id=obj_in.camera_id,
                       status=obj_in.status, image_capture=obj_in.image_capture)
         db.add(alert)

@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React from 'react'
 import {
   Table,
   Thead,
@@ -6,25 +6,16 @@ import {
   Tr,
   Th,
   Td,
-  Button,
-  Text,
   Box,
-  Flex,
   Heading,
-  IconButton,
-  useToast,
-  Skeleton,
   Spacer,
   Badge,
 } from '@chakra-ui/react'
 import format from 'date-fns/format'
 
-import FormDrawer from 'components/FormDrawer/FormDrawer'
-import { useMutation, useQuery } from 'react-query'
+import { useQuery } from 'react-query'
 import ErrorScreen from 'components/ErrorScreen/ErrorScreen'
-import { DeleteIcon } from '@chakra-ui/icons'
-import ConfirmDialog from 'components/ConfirmDialog/ConfirmDialog'
-import { useHistory, useParams } from 'react-router'
+import { useHistory } from 'react-router'
 import { fetchAllAlerts } from 'services/alerts'
 import FullScreenLoading from 'components/FullScreenLoading'
 import { AlertStatus } from 'types/domain'
@@ -56,7 +47,6 @@ const AlertStatusBadge: React.FC<{ status: AlertStatus }> = ({ status }) => {
 }
 
 const Alerts: React.FC<any> = ({ carrier }) => {
-  const toast = useToast()
   const history = useHistory()
 
   const { data, isLoading, isError } = useQuery(

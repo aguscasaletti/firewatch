@@ -1,15 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { Button } from '@chakra-ui/button'
 import { ChevronUpIcon } from '@chakra-ui/icons'
-import {
-  Box,
-  Flex,
-  Heading,
-  List,
-  ListIcon,
-  Spacer,
-  Text,
-} from '@chakra-ui/layout'
+import { Flex, Heading, List, ListIcon, Spacer, Text } from '@chakra-ui/layout'
 import { Menu, MenuButton, MenuItem, MenuList } from '@chakra-ui/menu'
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'

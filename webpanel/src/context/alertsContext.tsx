@@ -10,14 +10,12 @@ import {
   ModalOverlay,
   Button,
 } from '@chakra-ui/react'
-import Cam from 'pages/cameras/Cam'
 import { useMutation, useQuery } from 'react-query'
-import { fetchCurrentUserInfo } from 'services/user'
-import { Alert, Camera, Route, UserInfo } from 'types/domain'
+import { Alert } from 'types/domain'
 import { Box, Flex } from '@chakra-ui/layout'
 import RawVideoSource from 'components/RawVideoSource/RawVideoSource'
 import { fetchAlertsPendingReview, updateAlert } from 'services/alerts'
-import { FiAlertCircle, FiUsers } from 'react-icons/fi'
+import { FiAlertCircle } from 'react-icons/fi'
 
 interface AlertsContextValue {
   onClose: () => void
@@ -48,7 +46,7 @@ export const AlertsContextProvider: React.FC<{
 
       setTimeout(onOpen, 1000)
     }
-  }, [data.length])
+  }, [data.length, data, onOpen])
 
   // TODO snooze discarded alerts camera for a couple minutes
   const onDiscardAlert = async () => {

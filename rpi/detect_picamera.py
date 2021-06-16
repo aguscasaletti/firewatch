@@ -129,7 +129,7 @@ def run_tensorflow_inference(queue: Queue):
     parser.add_argument(
         '--model', help='File path of .tflite file.', required=True)
     parser.add_argument(
-       '--labels', help='File path of labels file.', required=True)
+        '--labels', help='File path of labels file.', required=True)
     parser.add_argument(
         '--threshold',
         help='Score threshold for detected objects.',
@@ -142,7 +142,8 @@ def run_tensorflow_inference(queue: Queue):
     interpreter = Interpreter(args.model)
     interpreter.allocate_tensors()
 
-    _, input_height, input_width, _ = interpreter.get_input_details()[0]['shape']
+    _, input_height, input_width, _ = interpreter.get_input_details()[
+        0]['shape']
 
     with picamera.PiCamera(
             resolution=(CAMERA_WIDTH, CAMERA_HEIGHT), framerate=30) as camera:
@@ -160,7 +161,7 @@ def run_tensorflow_inference(queue: Queue):
 
                 start_time = time.monotonic()
                 results = detect_objects(interpreter, image, args.threshold)
-                
+
                 input_tensor = np.expand_dims(image, 0)
                 interpreter.invoke()
                 results = interpreter.get_output_details()
@@ -193,16 +194,12 @@ def run_video_stream(queue: Queue):
                     start = time.time()
                     while True:
                         stream_value = queue.get()
-                        print('Getting stream value', len(stream_value))
                         self.wfile.write(bytes("--jpgboundary", "utf8"))
                         self.send_header('Content-type', 'image/jpeg')
                         self.send_header('Content-length',
                                          len(stream_value))
                         self.end_headers()
                         self.wfile.write(stream_value)
-                        # stream.seek(0)
-                        # stream.truncate()
-                        # time.sleep(.5)
                 except KeyboardInterrupt:
                     pass
                 return

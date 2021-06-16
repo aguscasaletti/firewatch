@@ -1,4 +1,5 @@
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union, Callable
+from typing import Any, Dict, Generic, List, Optional, \
+    Type, TypeVar, Union, Callable
 from datetime import datetime
 from pydantic.generics import GenericModel
 from pydantic import BaseModel

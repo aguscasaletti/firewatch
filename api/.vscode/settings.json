@@ -1,0 +1,6 @@
+{
+    "python.pythonPath": "/Users/agustinaliaga/Library/Caches/pypoetry/virtualenvs/app-mVh-fElh-py3.8/bin/python",
+    "python.linting.flake8Enabled": true,
+    "python.linting.enabled": true,
+    "python.linting.mypyEnabled": true
+}

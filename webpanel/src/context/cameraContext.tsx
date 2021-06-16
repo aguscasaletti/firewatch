@@ -10,10 +10,7 @@ import {
   ModalOverlay,
   Button,
 } from '@chakra-ui/react'
-import Cam from 'pages/cameras/Cam'
-import { useMutation, useQuery } from 'react-query'
-import { fetchCurrentUserInfo } from 'services/user'
-import { Camera, Route, UserInfo } from 'types/domain'
+import { Camera } from 'types/domain'
 import { Box } from '@chakra-ui/layout'
 import RawVideoSource from 'components/RawVideoSource/RawVideoSource'
 
@@ -35,13 +32,11 @@ export const CameraContextProvider: React.FC<{
     isOpen: isOpenLarge,
     onOpen: onOpenLarge,
     onClose: onCloseLarge,
-    onToggle: onToggleLarge,
   } = useDisclosure()
   const {
     isOpen: isOpenSmall,
     onOpen: onOpenSmall,
     onClose: onCloseSmall,
-    onToggle: onToggleSmall,
   } = useDisclosure()
   const [camera, setCamera] = useState<Camera>()
 
