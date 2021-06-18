@@ -36,7 +36,6 @@ const AlertNotifications = lazy(
   () => import('pages/alert-notifications/AlertNotifications'),
 )
 const Alerts = lazy(() => import('pages/alerts/Alerts'))
-
 const componentsByRoute: Record<string, React.FC<BrowserRouterProps>> = {
   '/home/cameras': Cameras,
   '/home/alerts': Alerts,

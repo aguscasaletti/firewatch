@@ -61,7 +61,7 @@ const Cam: React.FC<CamProps> = ({ camera }) => {
     <VideoWrapper camera={camera}>
       <img
         alt="source"
-        style={{ maxHeight: 275, width: '100%' }}
+        style={{ height: 240, width: '100%' }}
         src={camera.video_source_url}
       />
     </VideoWrapper>

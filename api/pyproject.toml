@@ -22,6 +22,7 @@ SQLAlchemy = "^1.4.11"
 mangum = "^0.11.0"
 email-validator = "^1.1.2"
 mysqlclient = "^2.0.3"
+boto3 = "^1.17.96"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"

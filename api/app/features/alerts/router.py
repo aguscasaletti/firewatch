@@ -1,3 +1,4 @@
+import os
 from .schemas import CameraEventRequest, CameraEventResponse, CameraResponse, \
     AlertResponse, AlertUpdate, CameraUpdate, AlertDetailsResponse
 from typing import Any, List
@@ -13,10 +14,11 @@ from .camera_repository import repository as cameras_repository
 from .alerts_repository import repository as alerts_repository, \
     PersistAlertRequest
 
+from app.clients.sns_client import publish_text_message
 
 router = APIRouter()
 
-ALERTING_THRESHOLD = 40
+ALERTING_THRESHOLD = 60
 
 
 @router.post("/camera-events", response_model=CameraEventResponse)
@@ -28,22 +30,31 @@ def camera_event(
     """
     Create new camera event.
     """
+    print(request_body.score, request_body.status)
     image_capture = request_body.image_capture
     del request_body.image_capture
     event = camera_events_repository.create(db, obj_in=request_body)
 
     if request_body.status == 'smoke_detected' \
             and request_body.score \
-            and request_body.score > ALERTING_THRESHOLD:
-        pending_alerts = alerts_repository.find_with_status_and_camera_id(
-            db, event.camera_id, status='pending_review')
-        if not len(pending_alerts):
+            and request_body.score >= ALERTING_THRESHOLD:
+        alerts_pending_or_in_progress = alerts_repository.find_with_status_and_camera_id(
+            db, event.camera_id, status=['pending_review', 'confirmed'])
+        if not len(alerts_pending_or_in_progress):
             persist_alert_req = PersistAlertRequest(
                 status='pending_review',
                 camera_id=event.camera_id,
                 image_capture=image_capture
             )
-            alerts_repository.create_from_request(db, obj_in=persist_alert_req)
+            alert = alerts_repository.create_from_request(
+                db, obj_in=persist_alert_req)
+
+            # Send notification
+            camera = cameras_repository.get(db, event.camera_id)
+            destination_phone_number = os.getenv('DEMO_PHONE_NUMBER')
+            web_panel_addr = os.getenv('DEMO_WEB_PANEL_ADDR')
+            message = f'Se ha detectado un foco de incendio con la cámara "{camera.name}". Ver incidente: {web_panel_addr}/mobile/alerts/{alert.id}/preview'
+            publish_text_message(destination_phone_number, message)
 
     return event
 
@@ -97,6 +108,29 @@ def update_alert(
             detail="This entity does not exist in the system",
         )
     alert = alerts_repository.update(db, db_obj=alert, obj_in=request_body)
+    return alert
+
+
+@router.post("/alerts/{id}/notifications", response_model=AlertDetailsResponse)
+def send_notification(
+    *,
+    db: Session = Depends(deps.get_db),
+    id: int,
+) -> Any:
+    """
+    Update an alert.
+    """
+    alert = alerts_repository.get(db, id=id)
+    if not alert or alert.deleted:
+        raise HTTPException(
+            status_code=404,
+            detail="This entity does not exist in the system",
+        )
+
+    destination_phone_number = os.getenv('DEMO_PHONE_NUMBER')
+    message = f'¡Alerta de incendio forestal en curso en zona {alert.camera.name}! Comunicarse inmediatamente con la central de monitoreo para iniciar acciones de respuesta'
+    publish_text_message(destination_phone_number, message)
+
     return alert
 
 

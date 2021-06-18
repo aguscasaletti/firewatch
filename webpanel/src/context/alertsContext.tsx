@@ -16,6 +16,7 @@ import { Box, Flex } from '@chakra-ui/layout'
 import RawVideoSource from 'components/RawVideoSource/RawVideoSource'
 import { fetchAlertsPendingReview, updateAlert } from 'services/alerts'
 import { FiAlertCircle } from 'react-icons/fi'
+import { useHistory } from 'react-router-dom'
 
 interface AlertsContextValue {
   onClose: () => void
@@ -30,12 +31,14 @@ export const AlertsContextProvider: React.FC<{
   children: React.ReactNode
 }> = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure()
-  const [alert, setAlert] = useState<Alert>()
+  const [alert, setAlert] = useState<Alert | null>()
+  const history = useHistory()
   const { data = [] } = useQuery(
     'fetchAlertsPendingReview',
     fetchAlertsPendingReview,
     {
       refetchInterval: 3000,
+      cacheTime: 0,
     },
   )
   const updateAlertMutation = useMutation(updateAlert(alert?.id || 0))
@@ -43,8 +46,9 @@ export const AlertsContextProvider: React.FC<{
   useEffect(() => {
     if (data.length) {
       setAlert(data[0])
-
       setTimeout(onOpen, 1000)
+    } else {
+      setAlert(null)
     }
   }, [data.length, data, onOpen])
 
@@ -57,6 +61,7 @@ export const AlertsContextProvider: React.FC<{
   const onConfirmAlert = async () => {
     await updateAlertMutation.mutateAsync({ status: 'confirmed' })
     onClose()
+    history.push(`/home/alerts/${alert?.id}/details`)
   }
 
   return (

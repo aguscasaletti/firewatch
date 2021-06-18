@@ -10,7 +10,7 @@ const BackButton: React.FC<any> = () => {
     <IconButton
       aria-label="go-back"
       onClick={history.goBack}
-      icon={<ArrowBackIcon h={7} w={8} />}
+      icon={<ArrowBackIcon h={5} w={6} />}
       backgroundColor="transparent"
       marginRight="3"
       verticalAlign="center"

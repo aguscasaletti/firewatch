@@ -22,6 +22,7 @@ from __future__ import print_function
 import json
 import time
 import base64
+from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from multiprocessing import Process, Queue
 
@@ -37,10 +38,15 @@ import requests
 from object_detection.utils import visualization_utils as viz_utils
 
 
-VIDEO_SOURCE_PATH = '../footage/20160619 to 20160621 San Diego Border Fire (trimmed to fire).mp4'
+# VIDEO_SOURCE_PATH = '../footage/20160619 to 20160621 San Diego Border Fire.mp4'
+VIDEO_SOURCE_PATH = '../footage/video_source_demo_long.mp4'
 MODEL_PATH = '../model/sample_saved_model'
 API_EVENTS_ENDPOINT = 'http://localhost:8000/api/camera-events'
 # MODEL_PATH = '../model/trained_model_efficientdet_d0_5000_steps'
+
+ALERT_NOTIFICATION_THROTTLING_SECONDS = 60
+OK_NOTIFICATION_THROTTLING_SECONDS = 60
+SCORE_ALERTING_THRESHOLD = 60
 
 # Load the Smoke Label Map
 category_index = {
@@ -142,14 +148,21 @@ def plot_detections(image_np,
     return image_np_with_annotations
 
 
-def get_camera_event_payload(score, image_np_with_detections):
-    alerting_threshold = 50
-    if score < alerting_threshold:
-        return json.dumps({
-            'camera_id': 1,
-            'status': 'ok'
-        })
+def build_camera_event_ok_payload():
+    """
+    Builds API request payload for an ok status
+    """
+    return json.dumps({
+        'camera_id': 1,
+        'status': 'ok'
+    })
 
+
+def build_camera_event_alert_payload(score, image_np_with_detections):
+    """
+    Builds API request alert payload given a score and the image that
+        generated it
+    """
     image_capture = numpy_image_to_base64_string(image_np_with_detections)
     with open("test_base64.txt", "w+") as f:
         f.write(image_capture)
@@ -199,6 +212,8 @@ def run_tensorflow_inference(queue: Queue):
         *'mp4v'), fps, (640, 480), True)
 
     elapsed = []
+    last_ok_notification_datetime = None
+    last_alert_notification_datetime = None
     while cap.isOpened():
         # Reads frame
         ret, image_np = cap.read()
@@ -231,14 +246,24 @@ def run_tensorflow_inference(queue: Queue):
                 detections['detection_scores'][0].numpy()
             )
 
-            # TODO prevent flooding server with OK messages.
-            # Send one per minute.
-            payload = get_camera_event_payload(score, image_np_with_detections)
-            requests.post(API_EVENTS_ENDPOINT, data=payload)
+            if score < SCORE_ALERTING_THRESHOLD:
+                if (last_ok_notification_datetime is None or
+                        (datetime.now() - last_ok_notification_datetime).total_seconds() > OK_NOTIFICATION_THROTTLING_SECONDS):
+                    last_ok_notification_datetime = datetime.now()
+                    payload = build_camera_event_ok_payload()
+                    requests.post(API_EVENTS_ENDPOINT, data=payload)
+            elif (last_alert_notification_datetime is None or
+                  (datetime.now() - last_alert_notification_datetime).total_seconds() > ALERT_NOTIFICATION_THROTTLING_SECONDS):
+                last_alert_notification_datetime = datetime.now()
+                payload = build_camera_event_alert_payload(
+                    score, image_np_with_detections)
+                requests.post(API_EVENTS_ENDPOINT, data=payload)
 
             queue.put(image_np_with_detections)
             out.write(image_np_with_detections)
-            cv2.imshow('Output', image_np_with_detections)
+            cv2.imshow('Output', cv2.cvtColor(
+                image_np_with_detections, cv2.COLOR_BGR2RGB))
+
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 cv2.destroyAllWindows()
                 break

@@ -2426,6 +2426,11 @@
   dependencies:
     "@types/react" "*"
 
+"@types/google.maps@^3.45.3":
+  version "3.45.3"
+  resolved "https://registry.yarnpkg.com/@types/google.maps/-/google.maps-3.45.3.tgz#4988bdb44d5665b4f518d6b0769bde09f27ff99a"
+  integrity sha512-UZHD7qch+44XFNbx/Fjf6NtdpScRWRhfCenvv/pMJfuJ4KQMzapDLqj/OOyHpB8nDp1ilNL3ujPYLY1YZHq1yQ==
+
 "@types/graceful-fs@^4.1.2":
   version "4.1.5"
   resolved "https://registry.yarnpkg.com/@types/graceful-fs/-/graceful-fs-4.1.5.tgz#21ffba0d98da4350db64891f92a9e5db3cdb4e15"

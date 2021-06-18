@@ -30,6 +30,13 @@ export const fetchCameras = async (): Promise<Camera[]> => {
   return response.data.data
 }
 
+export const sendNotification = (id: number) => async (): Promise<Alert> => {
+  const response = await axiosInstance.post<Alert>(
+    `/alerts/${id}/notifications`,
+  )
+  return response.data
+}
+
 export const updateAlert =
   (id: number) =>
   async (carrier: Record<string, unknown>): Promise<Alert> => {

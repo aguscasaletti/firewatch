@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
 from typing import List
 from app.db.base_repository import RepositoryBase
@@ -40,12 +41,12 @@ class AlertsRepository(RepositoryBase[Alert, AlertCreate, AlertUpdate]):
         self,
         db: Session,
         camera_id: int,
-        status: str,
+        status: List[str],
     ) -> List[Alert]:
         query = db.query(Alert).filter(
             Alert.deleted == None,  # noqa
             Alert.camera_id == camera_id,
-            Alert.status == status
+            Alert.status.in_(status)
         )
 
         data = query.order_by(Alert.id).all()

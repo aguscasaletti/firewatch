@@ -33,6 +33,10 @@ const queryClient = new QueryClient({
   },
 })
 const Home = lazy(() => import('pages/home/Home'))
+const Login = lazy(() => import('pages/auth/Login'))
+const AlertPreview = lazy(
+  () => import('pages/mobile-alert-preview/AlertPreview'),
+)
 
 class App extends React.PureComponent {
   state = {
@@ -55,23 +59,29 @@ class App extends React.PureComponent {
         <QueryClientProvider client={queryClient}>
           <UserContextProvider>
             <ChakraProvider theme={theme}>
-                  {this.state.error ? (
-                    <ErrorScreen message={this.state.error} />
-                  ) : (
-                    <Router>
-                      <Suspense fallback={<FullScreenLoading />}>
-                        <Switch>
-                          <Route path="/home" component={Home} />
-                          <Route exact path="/">
-                            <Redirect to="/home" />
-                          </Route>
-                          <Route path="*">
-                            <h1>Not found</h1>
-                          </Route>
-                        </Switch>
-                      </Suspense>
-                    </Router>
-                  )}
+              {this.state.error ? (
+                <ErrorScreen message={this.state.error} />
+              ) : (
+                <Router>
+                  <Suspense fallback={<FullScreenLoading />}>
+                    <Switch>
+                      <Route
+                        path="/mobile/alerts/:id/preview"
+                        exact
+                        component={AlertPreview}
+                      />
+                      <Route path="/login" exact component={Login} />
+                      <Route path="/home" component={Home} />
+                      <Route exact path="/">
+                        <Redirect to="/login" />
+                      </Route>
+                      <Route path="*">
+                        <h1>Not found</h1>
+                      </Route>
+                    </Switch>
+                  </Suspense>
+                </Router>
+              )}
             </ChakraProvider>
           </UserContextProvider>
         </QueryClientProvider>
