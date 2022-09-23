@@ -60,7 +60,7 @@ Pillow==8.2.0
 portalocker==2.0.0
 promise==2.3
 proto-plus==1.18.1
-protobuf==3.17.2
+protobuf==3.18.3
 psutil==5.8.0
 py-cpuinfo==8.0.0
 pyarrow==3.0.0
