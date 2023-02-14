@@ -37,7 +37,7 @@ python-multipart==0.0.5
 rsa==4.7.2; python_version >= "3.5" and python_version < "4"
 six==1.15.0; python_version >= "3.6" and python_full_version < "3.0.0" or python_version >= "3.6" and python_full_version >= "3.6.0"
 sqlalchemy==1.4.11; (python_version >= "2.7" and python_full_version < "3.0.0") or (python_full_version >= "3.6.0")
-starlette==0.13.2; python_version >= "3.6"
+starlette==0.25.0; python_version >= "3.6"
 tenacity==6.3.1
 toml==0.10.2; python_version >= "2.6" and python_full_version < "3.0.0" or python_full_version >= "3.3.0"
 typing-extensions==3.7.4.3; python_full_version >= "3.6.1" and python_version >= "3.6"
